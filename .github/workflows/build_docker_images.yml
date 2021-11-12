@@ -1,12 +1,12 @@
 name: Auto build QGIS server Docker images
 
 on:
-  schedule:
-    # runs every day
-    - cron: '0 6 * * *'
   push:
     branches:
       - master
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 env:
@@ -29,11 +29,20 @@ jobs:
         name: building ubuntu
         run: |
           docker build -t opengisch/qgis-server:nightly -f Dockerfile --build-arg repo=ubuntu-nightly .
+          echo "# docker images" && sudo docker images
+
+      - id: run
+        name: run ubuntu
+        run: |
+          echo "# docker run -d -v $(pwd)/test/data:/io/data -p 8010:80 --name qgis-server opengisch/qgis-server:nightly" && \
           docker run -d -v $(pwd)/test/data:/io/data -p 8010:80 --name qgis-server opengisch/qgis-server:nightly
+          echo "# docker exec -i qgis-server dpkg -l qgis-server" && \
           docker exec -i qgis-server dpkg -l qgis-server
+          echo "# sleep 5" && \
           sleep 5
-          curl -s 'http://localhost:8010/ogc/test_project?service=WMS&request=GetCapabilities' | grep -ivq exception
-          docker push opengisch/qgis-server:nightly
+          echo "# curl -s 'http://localhost:8010/ogc/test_project?service=WMS&request=GetCapabilities'" && \
+          curl -s 'http://localhost:8010/ogc/test_project?service=WMS&request=GetCapabilities'
+          # docker push opengisch/qgis-server:nightly
 
   testing-ubuntu:
     runs-on: ubuntu-latest
