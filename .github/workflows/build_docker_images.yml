@@ -19,11 +19,11 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       
-      - name: Login to Docker Hub
-        uses: docker/login-action@v1
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+#      - name: Login to Docker Hub
+#        uses: docker/login-action@v1
+#        with:
+#          username: ${{ secrets.DOCKER_USERNAME }}
+#          password: ${{ secrets.DOCKER_PASSWORD }}
           
       - id: build
         name: building ubuntu
@@ -47,6 +47,7 @@ jobs:
   testing-ubuntu:
     runs-on: ubuntu-latest
     name: testing ubuntu
+    if: false
     steps:
       - uses: actions/checkout@v2
       - id: testing
@@ -61,6 +62,7 @@ jobs:
   determinejob:
     runs-on: ubuntu-latest
     name: determine versions to update
+    if: false
     outputs:
       update_stable: ${{ steps.determine.outputs.update_stable }}
       qgis_stable: ${{ steps.determine.outputs.qgis_stable }}
@@ -110,7 +112,8 @@ jobs:
   build-ubuntu-stable:
     runs-on: ubuntu-latest
     needs: [determinejob, testing-ubuntu]
-    if: needs.determinejob.outputs.update_stable == 1 || github.event_name == 'push'
+    if: false
+    # if: needs.determinejob.outputs.update_stable == 1 || github.event_name == 'push'
     steps:
       - uses: actions/checkout@v2
       - name: Login to Docker Hub
@@ -128,7 +131,8 @@ jobs:
   build-ubuntu-ltr:
     runs-on: ubuntu-latest
     needs: [determinejob, testing-ubuntu]
-    if: needs.determinejob.outputs.update_ltr == 1 || github.event_name == 'push'
+    if: false
+    # if: needs.determinejob.outputs.update_ltr == 1 || github.event_name == 'push'
     steps:
       - uses: actions/checkout@v2
       - name: Login to Docker Hub
